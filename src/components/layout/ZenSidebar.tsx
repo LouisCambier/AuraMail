@@ -10,7 +10,6 @@ import {
   Settings,
   Sparkles,
   Bot,
-  Pin,
 } from "lucide-react";
 import { Workspace } from "../../types";
 import { WorkspaceSwitcher } from "../workspace/WorkspaceSwitcher";

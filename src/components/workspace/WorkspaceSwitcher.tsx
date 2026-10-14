@@ -18,11 +18,11 @@ export const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case "work":
-        return <Briefcase className="w-4 h-4" />;
+        return <Briefcase className="w-4 h-4 shrink-0" />;
       case "tech":
-        return <Laptop className="w-4 h-4" />;
+        return <Laptop className="w-4 h-4 shrink-0" />;
       default:
-        return <FolderHeart className="w-4 h-4" />;
+        return <FolderHeart className="w-4 h-4 shrink-0" />;
     }
   };
 
@@ -56,10 +56,13 @@ export const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({
               } ${isCollapsed ? "justify-center px-0 py-2" : ""}`}
               title={ws.name}
             >
-              <div
-                className="w-2 h-2 rounded-full shrink-0"
-                style={{ backgroundColor: ws.color }}
-              />
+              <div className="relative flex items-center justify-center">
+                {getIcon(ws.icon)}
+                <div
+                  className="w-1.5 h-1.5 rounded-full absolute -top-0.5 -right-0.5 ring-1 ring-zen-surface"
+                  style={{ backgroundColor: ws.color }}
+                />
+              </div>
               {!isCollapsed && (
                 <>
                   <span className="truncate flex-1 text-left">{ws.name}</span>

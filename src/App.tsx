@@ -113,7 +113,7 @@ const INITIAL_EMAILS: Email[] = [
 
 export const App: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [workspaces, setWorkspaces] = useState<Workspace[]>(INITIAL_WORKSPACES);
+  const [workspaces] = useState<Workspace[]>(INITIAL_WORKSPACES);
   const [activeWorkspaceId, setActiveWorkspaceId] = useState("personal");
   const [activeFolder, setActiveFolder] = useState("inbox");
   const [emails, setEmails] = useState<Email[]>(INITIAL_EMAILS);
@@ -132,8 +132,23 @@ export const App: React.FC = () => {
 
   const handleTriageAll = async () => {
     setIsTriaging(true);
-    // Simulation / Appel IPC Tauri selon contexte
     setTimeout(() => {
+      setEmails((prev) =>
+        prev.map((m) =>
+          m.triage
+            ? m
+            : {
+                ...m,
+                triage: {
+                  category: "low_priority",
+                  priorityScore: 2,
+                  summary: "Email trié et classé automatiquement.",
+                  reasoning: "Classification par défaut.",
+                  suggestedQuickReplies: ["Merci, bien reçu."],
+                },
+              }
+        )
+      );
       setIsTriaging(false);
     }, 1200);
   };

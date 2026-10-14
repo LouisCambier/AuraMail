@@ -2,14 +2,11 @@ import React, { useState } from "react";
 import { Email } from "../../types";
 import { TriageBadge } from "../ai/TriageBadge";
 import {
-  Reply,
-  Forward,
   Trash2,
   Archive,
   Sparkles,
   Send,
   CornerDownLeft,
-  Check,
 } from "lucide-react";
 
 interface MailReaderProps {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Email } from "../../types";
 import { TriageBadge } from "../ai/TriageBadge";
-import { Search, Sparkles, Star, Paperclip, Filter } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 
 interface MailListProps {
   emails: Email[];
