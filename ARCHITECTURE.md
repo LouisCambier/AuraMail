@@ -131,6 +131,35 @@ CREATE TABLE ai_triage (
     triaged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Historique des corrections utilisateur pour l'apprentissage continu
+CREATE TABLE ai_corrections (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email_id TEXT NOT NULL REFERENCES emails(id) ON DELETE CASCADE,
+    sender TEXT NOT NULL,
+    subject_keywords TEXT NOT NULL,
+    original_category TEXT NOT NULL,
+    corrected_category TEXT NOT NULL,
+    original_priority INTEGER NOT NULL,
+    corrected_priority INTEGER NOT NULL,
+    user_note TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Synthèse des règles apprises par l'IA
+CREATE TABLE ai_learned_rules (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    sender TEXT,
+    subject_pattern TEXT,
+    forced_category TEXT NOT NULL,
+    forced_priority INTEGER NOT NULL,
+    rule_text TEXT NOT NULL,
+    confidence REAL NOT NULL DEFAULT 0.85,
+    sample_count INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Vecteurs pour recherche sémantique / Q&A
 CREATE TABLE email_embeddings (
     email_id TEXT PRIMARY KEY REFERENCES emails(id) ON DELETE CASCADE,
@@ -175,6 +204,13 @@ Chaque appel au LLM utilise le mode **Structured Output / JSON Schema** :
 - **Anthropic Claude** : Modèles `claude-3-5-sonnet`, `claude-3-5-haiku`.
 - **Google Gemini / Antigravity** : Modèles `gemini-1.5-flash`, `gemini-2.0-flash`.
 - **OpenAI-Compatible Universel** : URL personnalisée + clé d'API (compatible Groq, DeepSeek, OpenRouter, Together, LM Studio, vLLM).
+
+### 4.4. Moteur d'Apprentissage Continu (Continuous Few-Shot Learning)
+Plutôt qu'un réentraînement lourd et coûteux de modèle :
+1. **Enregistrement des corrections utilisateur** : Dès que l'utilisateur modifie la catégorie, la priorité (1-5) ou ajoute une note d'instruction via le bouton *« Corriger / Entraîner l'IA »*, un enregistrement est sauvegardé dans `ai_corrections`.
+2. **Recherche de contexte similaire (Few-Shot Retrieval)** : Lors de chaque nouveau triage, AuraMail recherche les corrections passées associées au même expéditeur ou aux mots-clés du sujet.
+3. **Injection dynamique dans le prompt système** : Les règles apprises sont insérées sous forme d'exemples explicites dans la requête LLM, forçant le modèle (qu'il soit un Llama 3B local ou un Claude Sonnet cloud) à respecter les choix antérieurs de l'utilisateur.
+4. **Synthèse de règles et transparence** : Les règles agrégées sont consultables et réinitialisables à tout moment dans l'onglet *« Mémoire & Apprentissage »* des paramètres.
 
 ---
 

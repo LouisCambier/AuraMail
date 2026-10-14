@@ -48,3 +48,22 @@ export interface AISettings {
   model: string;
   autoTriage: boolean;
 }
+
+export interface LearnedRule {
+  id: number;
+  workspaceId: string;
+  ruleText: string;
+  confidence: number;
+  sampleCount: number;
+}
+
+export interface CorrectionEntry {
+  emailId: string;
+  sender: string;
+  subjectKeywords: string;
+  originalCategory: EmailCategory;
+  correctedCategory: EmailCategory;
+  originalPriority: PriorityScore;
+  correctedPriority: PriorityScore;
+  userNote?: string;
+}

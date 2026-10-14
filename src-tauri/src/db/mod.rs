@@ -1,6 +1,8 @@
 use sqlx::{sqlite::SqlitePoolOptions, Pool, Sqlite};
 use std::path::PathBuf;
 
+pub mod learning;
+
 pub type DbPool = Pool<Sqlite>;
 
 pub async fn init_db(data_dir: PathBuf) -> Result<DbPool, String> {
@@ -81,6 +83,30 @@ pub async fn init_db(data_dir: PathBuf) -> Result<DbPool, String> {
             body_plain,
             content='emails',
             content_rowid='rowid'
+        );
+
+        -- Corrections manuelles de l'utilisateur (pour Few-Shot Learning)
+        CREATE TABLE IF NOT EXISTS ai_corrections (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email_id TEXT NOT NULL,
+            sender TEXT NOT NULL,
+            subject_keywords TEXT,
+            original_category TEXT NOT NULL,
+            corrected_category TEXT NOT NULL,
+            original_priority INTEGER NOT NULL,
+            corrected_priority INTEGER NOT NULL,
+            user_note TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Règles synthétisées apprises au fil de l'eau
+        CREATE TABLE IF NOT EXISTS ai_learned_rules (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            workspace_id TEXT NOT NULL,
+            rule_text TEXT NOT NULL,
+            confidence REAL NOT NULL,
+            sample_count INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         "#
     )

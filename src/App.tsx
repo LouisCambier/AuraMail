@@ -3,7 +3,7 @@ import { ZenSidebar } from "./components/layout/ZenSidebar";
 import { MailList } from "./components/mail/MailList";
 import { MailReader } from "./components/mail/MailReader";
 import { SettingsModal } from "./components/ai/SettingsModal";
-import { Email, Workspace, AISettings } from "./types";
+import { Email, Workspace, AISettings, LearnedRule, EmailCategory, PriorityScore } from "./types";
 
 const INITIAL_WORKSPACES: Workspace[] = [
   { id: "personal", name: "Personnel", icon: "user", color: "#6366f1", unreadCount: 3 },
@@ -120,6 +120,22 @@ export const App: React.FC = () => {
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>("mail-1");
   const [isTriaging, setIsTriaging] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [learnedRules, setLearnedRules] = useState<LearnedRule[]>([
+    {
+      id: 1,
+      workspaceId: "personal",
+      ruleText: "Toujours classer les emails d'Alexandre Martin en Urgent (5/5)",
+      confidence: 0.95,
+      sampleCount: 3,
+    },
+    {
+      id: 2,
+      workspaceId: "personal",
+      ruleText: "Classer les notifications de paiements Stripe en Reçu / Facture (1/5)",
+      confidence: 0.99,
+      sampleCount: 8,
+    },
+  ]);
   const [aiSettings, setAiSettings] = useState<AISettings>({
     providerType: "ollama",
     baseUrl: "http://127.0.0.1:11434",
@@ -129,6 +145,91 @@ export const App: React.FC = () => {
   });
 
   const selectedEmail = emails.find((e) => e.id === selectedEmailId) || null;
+
+  const handleCorrectTriage = async (
+    email: Email,
+    newCategory: EmailCategory,
+    newPriority: PriorityScore,
+    userNote?: string
+  ) => {
+    // 1. Mettre à jour l'email localement
+    setEmails((prev) =>
+      prev.map((m) =>
+        m.id === email.id
+          ? {
+              ...m,
+              triage: {
+                category: newCategory,
+                priorityScore: newPriority,
+                summary: m.triage?.summary || "Email mis à jour",
+                reasoning: userNote
+                  ? `Règle apprise : ${userNote}`
+                  : `Correction manuelle appliquée par l'utilisateur (${newCategory}, priorité ${newPriority}/5).`,
+                suggestedQuickReplies: m.triage?.suggestedQuickReplies || [],
+              },
+            }
+          : m
+      )
+    );
+
+    // 2. Synthétiser la nouvelle règle apprise dans l'état
+    const newRuleText = `Toujours classer les emails de '${email.fromName}' en '${newCategory}' (Priorité ${newPriority}/5)`;
+    setLearnedRules((prev) => {
+      const existing = prev.find((r) => r.ruleText === newRuleText);
+      if (existing) {
+        return prev.map((r) =>
+          r.id === existing.id
+            ? { ...r, sampleCount: r.sampleCount + 1, confidence: Math.min(0.99, r.confidence + 0.05) }
+            : r
+        );
+      }
+      return [
+        {
+          id: Date.now(),
+          workspaceId: activeWorkspaceId,
+          ruleText: newRuleText,
+          confidence: 0.85,
+          sampleCount: 1,
+        },
+        ...prev,
+      ];
+    });
+
+    // 3. Persistance dans la base SQLite via Tauri si actif
+    if (window.__TAURI_INTERNALS__) {
+      try {
+        const { invoke } = await import("@tauri-apps/api/core");
+        await invoke("record_triage_correction", {
+          correction: {
+            id: null,
+            email_id: email.id,
+            sender: email.fromAddress,
+            subject_keywords: email.subject.slice(0, 50),
+            original_category: email.triage?.category || "low_priority",
+            corrected_category: newCategory,
+            original_priority: email.triage?.priorityScore || 1,
+            corrected_priority: newPriority,
+            user_note: userNote || null,
+            created_at: null,
+          },
+        });
+      } catch (err) {
+        console.warn("Échec persistance Tauri correction :", err);
+      }
+    }
+  };
+
+  const handleResetLearning = async () => {
+    setLearnedRules([]);
+    if (window.__TAURI_INTERNALS__) {
+      try {
+        const { invoke } = await import("@tauri-apps/api/core");
+        await invoke("reset_learning");
+      } catch (err) {
+        console.warn("Échec reset learning Tauri :", err);
+      }
+    }
+  };
 
   const handleTriageAll = async () => {
     setIsTriaging(true);
@@ -207,18 +308,21 @@ export const App: React.FC = () => {
         isTriaging={isTriaging}
       />
 
-      {/* 3. Lecteur Zen & Éditeur de réponse avec suggestions IA */}
+      {/* 3. Lecteur Zen & Éditeur de réponse avec suggestions IA et bouton d'apprentissage */}
       <MailReader
         email={selectedEmail}
         onGenerateAIReply={handleGenerateReply}
+        onCorrectTriage={handleCorrectTriage}
       />
 
-      {/* 4. Modale de configuration BYOK IA */}
+      {/* 4. Modale de configuration BYOK IA & Tableau des règles apprises */}
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         settings={aiSettings}
         onSave={setAiSettings}
+        learnedRules={learnedRules}
+        onResetLearning={handleResetLearning}
       />
     </div>
   );

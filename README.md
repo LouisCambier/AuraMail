@@ -32,10 +32,12 @@ No monthly $30 subscription. No remote servers reading your confidential emails.
   - **Split View** to view threads side-by-side or draft while referencing an email.
   - **Command Palette (`Ctrl+K`)** for instant keyboard-driven navigation.
 
-- 🤖 **Universal AI Triage (Local & BYOK)** :
+- 🤖 **Universal AI Triage & Continuous Learning (Local & BYOK)** :
   - **Background Classification** : Scores urgency (1–5) and categorizes into *Urgent, Action Required, Newsletters, Receipts, Low Priority*.
   - **One-Line TL;DR** : Instant smart summary visible directly in the message list.
   - **Transparent Reasoning** : See *why* an email was categorized a certain way with 1-click human feedback.
+  - **Continuous In-Context Learning** : Correct any classification or add training notes in 1 click. AuraMail logs your feedback in local SQLite and dynamically injects few-shot exemplars into subsequent triage prompts so your AI continuously adapts to your personal habits without expensive fine-tuning.
+  - **Learned Rules Inspector** : View, audit, and reset learned behavioral rules directly in the settings modal.
   - **Contextual Quick Replies** : Generate polite responses or expand bullet points into full drafts using your preferred AI model.
 
 - 🔒 **Zero-Knowledge Privacy** :

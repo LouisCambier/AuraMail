@@ -48,9 +48,20 @@ pub async fn get_workspaces(state: State<'_, Arc<AppState>>) -> Result<Vec<Works
 
 #[tauri::command]
 pub async fn triage_email_direct(
+    state: State<'_, Arc<AppState>>,
     email: EmailContent,
     config: AiProviderConfig,
 ) -> Result<TriageResult, String> {
+    // 🧠 Récupérer les corrections et préférences passées de l'utilisateur pour cet expéditeur/sujet
+    let learning_context = db::learning::get_relevant_corrections(
+        &state.db,
+        &email.from,
+        &email.subject,
+        5,
+    )
+    .await
+    .unwrap_or_default();
+
     let provider: Box<dyn AuraLLM> = match config.provider_type.as_str() {
         "ollama" => Box::new(OllamaProvider::new(config.base_url, config.model)),
         "openai_compatible" | "claude" | "gemini" => {
@@ -62,7 +73,28 @@ pub async fn triage_email_direct(
         _ => return Err("Type de fournisseur IA non supporté".to_string()),
     };
 
-    provider.triage_email(&email).await
+    provider.triage_email(&email, &learning_context).await
+}
+
+#[tauri::command]
+pub async fn record_triage_correction(
+    state: State<'_, Arc<AppState>>,
+    correction: db::learning::CorrectionEntry,
+) -> Result<(), String> {
+    db::learning::save_correction(&state.db, &correction).await
+}
+
+#[tauri::command]
+pub async fn get_learned_rules(
+    state: State<'_, Arc<AppState>>,
+    workspace_id: String,
+) -> Result<Vec<db::learning::LearnedRule>, String> {
+    db::learning::get_all_learned_rules(&state.db, &workspace_id).await
+}
+
+#[tauri::command]
+pub async fn reset_learning(state: State<'_, Arc<AppState>>) -> Result<(), String> {
+    db::learning::clear_learning_data(&state.db).await
 }
 
 #[tauri::command]
@@ -113,6 +145,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             get_workspaces,
             triage_email_direct,
+            record_triage_correction,
+            get_learned_rules,
+            reset_learning,
             generate_reply_direct,
             store_api_credential,
             retrieve_api_credential

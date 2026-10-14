@@ -1,3 +1,4 @@
+use crate::db::learning::CorrectionEntry;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
@@ -21,8 +22,34 @@ pub struct EmailContent {
 
 #[async_trait]
 pub trait AuraLLM: Send + Sync {
-    async fn triage_email(&self, email: &EmailContent) -> Result<TriageResult, String>;
+    async fn triage_email(
+        &self,
+        email: &EmailContent,
+        learning_context: &[CorrectionEntry],
+    ) -> Result<TriageResult, String>;
     async fn generate_reply(&self, email: &EmailContent, intent: &str) -> Result<String, String>;
+}
+
+fn build_few_shot_instructions(learning_context: &[CorrectionEntry]) -> String {
+    if learning_context.is_empty() {
+        return String::new();
+    }
+
+    let mut instructions = String::from(
+        "\n\n🚨 RÈGLES ET EXEMPLES APPRIS DE L'UTILISATEUR (Respecte impérativement ces préférences) :\n"
+    );
+    for (i, c) in learning_context.iter().enumerate() {
+        instructions.push_str(&format!(
+            "- Exemple {}: Expéditeur '{}' (mots-clés sujet: '{}') => Corrigé en catégorie '{}' avec priorité {}/5.{}\n",
+            i + 1,
+            c.sender,
+            c.subject_keywords,
+            c.corrected_category,
+            c.corrected_priority,
+            c.user_note.as_ref().map(|n| format!(" Note utilisateur: '{}'", n)).unwrap_or_default()
+        ));
+    }
+    instructions
 }
 
 /// Fournisseur Local Ollama (zéro fuite de données, localhost:11434)
@@ -42,13 +69,19 @@ impl OllamaProvider {
 
 #[async_trait]
 impl AuraLLM for OllamaProvider {
-    async fn triage_email(&self, email: &EmailContent) -> Result<TriageResult, String> {
+    async fn triage_email(
+        &self,
+        email: &EmailContent,
+        learning_context: &[CorrectionEntry],
+    ) -> Result<TriageResult, String> {
         let client = reqwest::Client::new();
+        let few_shot = build_few_shot_instructions(learning_context);
         let prompt = format!(
             "Tu es l'assistant de tri d'AuraMail. Analyse cet email et réponds UNIQUEMENT en JSON avec la structure exacte :\n\
-            {{\"category\": \"urgent|action_required|newsletter|receipt|low_priority\", \"priority_score\": 1-5, \"summary\": \"résumé en 1 phrase\", \"reasoning\": \"pourquoi cette note\", \"suggested_quick_replies\": [\"réponse 1\", \"réponse 2\"]}}\n\n\
+            {{\"category\": \"urgent|action_required|newsletter|receipt|low_priority\", \"priority_score\": 1-5, \"summary\": \"résumé en 1 phrase\", \"reasoning\": \"pourquoi cette note\", \"suggested_quick_replies\": [\"réponse 1\", \"réponse 2\"]}}\n\
+            {}\n\n\
             De : {}\nSujet : {}\nDate : {}\nCorps :\n{}",
-            email.from, email.subject, email.date, email.body_plain
+            few_shot, email.from, email.subject, email.date, email.body_plain
         );
 
         let body = serde_json::json!({
@@ -126,13 +159,19 @@ impl OpenAICompatibleProvider {
 
 #[async_trait]
 impl AuraLLM for OpenAICompatibleProvider {
-    async fn triage_email(&self, email: &EmailContent) -> Result<TriageResult, String> {
+    async fn triage_email(
+        &self,
+        email: &EmailContent,
+        learning_context: &[CorrectionEntry],
+    ) -> Result<TriageResult, String> {
         let client = reqwest::Client::new();
+        let few_shot = build_few_shot_instructions(learning_context);
         let prompt = format!(
             "Analyse cet email et réponds UNIQUEMENT en JSON avec la structure exacte :\n\
-            {{\"category\": \"urgent|action_required|newsletter|receipt|low_priority\", \"priority_score\": 1-5, \"summary\": \"résumé en 1 phrase\", \"reasoning\": \"pourquoi\", \"suggested_quick_replies\": [\"réponse 1\", \"réponse 2\"]}}\n\n\
+            {{\"category\": \"urgent|action_required|newsletter|receipt|low_priority\", \"priority_score\": 1-5, \"summary\": \"résumé en 1 phrase\", \"reasoning\": \"pourquoi\", \"suggested_quick_replies\": [\"réponse 1\", \"réponse 2\"]}}\n\
+            {}\n\n\
             De : {}\nSujet : {}\nCorps :\n{}",
-            email.from, email.subject, email.body_plain
+            few_shot, email.from, email.subject, email.body_plain
         );
 
         let body = serde_json::json!({
