@@ -9,6 +9,7 @@ interface SettingsModalProps {
   onSave: (newSettings: AISettings) => void;
   learnedRules?: LearnedRule[];
   onResetLearning?: () => void;
+  initialTab?: "byok" | "learning";
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -18,10 +19,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSave,
   learnedRules = [],
   onResetLearning,
+  initialTab = "byok",
 }) => {
-  const [activeTab, setActiveTab] = useState<"byok" | "learning">("byok");
+  const [activeTab, setActiveTab] = useState<"byok" | "learning">(initialTab);
   const [current, setCurrent] = useState<AISettings>(settings);
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Mettre à jour l'onglet actif lors de l'ouverture
+  React.useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
 
   if (!isOpen) return null;
 

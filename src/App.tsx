@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ZenSidebar } from "./components/layout/ZenSidebar";
 import { MailList } from "./components/mail/MailList";
 import { MailReader } from "./components/mail/MailReader";
 import { SettingsModal } from "./components/ai/SettingsModal";
+import { CommandPalette } from "./components/layout/CommandPalette";
 import { Email, Workspace, AISettings, LearnedRule, EmailCategory, PriorityScore } from "./types";
 
 const INITIAL_WORKSPACES: Workspace[] = [
@@ -120,6 +121,8 @@ export const App: React.FC = () => {
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>("mail-1");
   const [isTriaging, setIsTriaging] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<"byok" | "learning">("byok");
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [learnedRules, setLearnedRules] = useState<LearnedRule[]>([
     {
       id: 1,
@@ -143,6 +146,18 @@ export const App: React.FC = () => {
     model: "llama3.2",
     autoTriage: true,
   });
+
+  // Écouteur global pour le raccourci Ctrl+K / Cmd+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const selectedEmail = emails.find((e) => e.id === selectedEmailId) || null;
 
@@ -296,7 +311,11 @@ export const App: React.FC = () => {
         workspaces={workspaces}
         activeWorkspaceId={activeWorkspaceId}
         onSelectWorkspace={setActiveWorkspaceId}
-        onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenSettings={() => {
+          setSettingsTab("byok");
+          setIsSettingsOpen(true);
+        }}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
       />
 
       {/* 2. Liste des emails avec badges IA et filtres */}
@@ -306,6 +325,7 @@ export const App: React.FC = () => {
         onSelectEmail={setSelectedEmailId}
         onTriageAll={handleTriageAll}
         isTriaging={isTriaging}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
       />
 
       {/* 3. Lecteur Zen & Éditeur de réponse avec suggestions IA et bouton d'apprentissage */}
@@ -323,6 +343,25 @@ export const App: React.FC = () => {
         onSave={setAiSettings}
         learnedRules={learnedRules}
         onResetLearning={handleResetLearning}
+        initialTab={settingsTab}
+      />
+
+      {/* 5. Palette de commandes Zen (Ctrl+K) */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        emails={emails}
+        workspaces={workspaces}
+        activeWorkspaceId={activeWorkspaceId}
+        onSelectWorkspace={setActiveWorkspaceId}
+        onSelectFolder={setActiveFolder}
+        onSelectEmail={setSelectedEmailId}
+        onTriageAll={handleTriageAll}
+        onOpenSettings={(tab = "byok") => {
+          setSettingsTab(tab);
+          setIsSettingsOpen(true);
+        }}
+        onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
     </div>
   );

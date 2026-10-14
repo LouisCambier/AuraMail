@@ -10,6 +10,7 @@ import {
   Settings,
   Sparkles,
   Bot,
+  Command,
 } from "lucide-react";
 import { Workspace } from "../../types";
 import { WorkspaceSwitcher } from "../workspace/WorkspaceSwitcher";
@@ -23,6 +24,7 @@ interface ZenSidebarProps {
   activeWorkspaceId: string;
   onSelectWorkspace: (id: string) => void;
   onOpenSettings: () => void;
+  onOpenCommandPalette?: () => void;
 }
 
 export const ZenSidebar: React.FC<ZenSidebarProps> = ({
@@ -34,6 +36,7 @@ export const ZenSidebar: React.FC<ZenSidebarProps> = ({
   activeWorkspaceId,
   onSelectWorkspace,
   onOpenSettings,
+  onOpenCommandPalette,
 }) => {
   const folders = [
     { id: "inbox", label: "Boîte de réception", icon: Inbox, count: 12 },
@@ -145,8 +148,28 @@ export const ZenSidebar: React.FC<ZenSidebarProps> = ({
         </div>
       </div>
 
-      {/* Footer avec Paramètres */}
-      <div className="p-2 border-t border-zen-border flex items-center justify-between">
+      {/* Footer avec Palette de commande & Paramètres */}
+      <div className="p-2 border-t border-zen-border flex flex-col gap-1">
+        {onOpenCommandPalette && (
+          <button
+            onClick={onOpenCommandPalette}
+            title="Palette de commandes (Ctrl+K)"
+            className={`flex items-center gap-2.5 w-full p-2 rounded-lg text-sm text-zen-muted hover:text-zen-text hover:bg-zen-hover transition ${
+              isCollapsed ? "justify-center" : "justify-between"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <Command className="w-4 h-4 shrink-0 text-zen-accent" />
+              {!isCollapsed && <span>Commandes</span>}
+            </div>
+            {!isCollapsed && (
+              <kbd className="px-1.5 py-0.5 rounded bg-zen-elevated border border-zen-border text-[10px] text-zen-subtle font-mono">
+                Ctrl+K
+              </kbd>
+            )}
+          </button>
+        )}
+
         <button
           onClick={onOpenSettings}
           title="Paramètres IA & Comptes"

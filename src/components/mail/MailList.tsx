@@ -9,6 +9,7 @@ interface MailListProps {
   onSelectEmail: (id: string) => void;
   onTriageAll: () => void;
   isTriaging: boolean;
+  onOpenCommandPalette?: () => void;
 }
 
 export const MailList: React.FC<MailListProps> = ({
@@ -17,6 +18,7 @@ export const MailList: React.FC<MailListProps> = ({
   onSelectEmail,
   onTriageAll,
   isTriaging,
+  onOpenCommandPalette,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "unread" | "urgent">("all");
@@ -45,8 +47,17 @@ export const MailList: React.FC<MailListProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Recherche instantanée (FTS5)..."
-            className="w-full pl-9 pr-3 py-1.5 bg-zen-surface border border-zen-border rounded-lg text-sm text-zen-text placeholder-zen-subtle focus:outline-none focus:border-zen-accent transition"
+            className="w-full pl-9 pr-14 py-1.5 bg-zen-surface border border-zen-border rounded-lg text-sm text-zen-text placeholder-zen-subtle focus:outline-none focus:border-zen-accent transition"
           />
+          {onOpenCommandPalette && (
+            <button
+              onClick={onOpenCommandPalette}
+              title="Ouvrir la palette de commandes (Ctrl+K)"
+              className="absolute right-2 px-1.5 py-0.5 rounded bg-zen-elevated border border-zen-border text-[10px] text-zen-subtle hover:text-zen-text font-mono transition"
+            >
+              Ctrl+K
+            </button>
+          )}
         </div>
 
         <div className="flex items-center justify-between">
