@@ -67,3 +67,12 @@ export interface CorrectionEntry {
   correctedPriority: PriorityScore;
   userNote?: string;
 }
+
+export interface Account {
+  id: string;
+  name: string;
+  email: string;
+  provider: "google" | "microsoft" | "imap";
+  workspaceId: string;
+}
+
