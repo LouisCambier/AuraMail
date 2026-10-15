@@ -6,7 +6,6 @@ import {
   Archive,
   Trash2,
   PanelLeftClose,
-  PanelLeft,
   Settings,
   Sparkles,
   Bot,
@@ -60,8 +59,8 @@ export const ZenSidebar: React.FC<ZenSidebarProps> = ({
       {/* Header avec Logo & Toggle Zen */}
       <div className="flex items-center justify-between px-3 h-14 border-b border-zen-border">
         {!isCollapsed && (
-          <div className="flex items-center gap-2 overflow-hidden">
-            <img src="/logo.svg" alt="AuraMail Logo" className="w-7 h-7 rounded-lg shadow-sm" />
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <img src="/logo.png" alt="AuraMail Logo" className="w-7 h-7 rounded-lg shadow-sm object-contain" />
             <span className="font-semibold tracking-tight text-zen-text text-base">
               AuraMail
             </span>
@@ -74,7 +73,7 @@ export const ZenSidebar: React.FC<ZenSidebarProps> = ({
             isCollapsed ? "mx-auto" : ""
           }`}
         >
-          {isCollapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+          {isCollapsed ? <img src="/logo.png" alt="AuraMail" className="w-6 h-6 rounded object-contain" /> : <PanelLeftClose className="w-5 h-5" />}
         </button>
       </div>
 

@@ -285,10 +285,10 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               <button
                 type="submit"
                 disabled={!!loadingProvider}
-                className="w-full py-2 bg-zen-accent hover:bg-zen-accentHover text-white rounded-lg font-medium transition flex items-center justify-center gap-2 mt-2"
+                className="w-full py-2 bg-zen-accent hover:bg-zen-accentHover text-black rounded-lg font-semibold transition flex items-center justify-center gap-2 mt-2"
               >
                 {loadingProvider === "manual" ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin text-black" />
                 ) : (
                   <>
                     <Sparkles className="w-3.5 h-3.5" />

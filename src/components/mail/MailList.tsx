@@ -98,10 +98,10 @@ export const MailList: React.FC<MailListProps> = ({
             onClick={onTriageAll}
             disabled={isTriaging}
             title="Analyser et trier la boîte avec l'IA"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-zen-accent/20 text-indigo-300 border border-zen-accent/30 hover:bg-zen-accent/30 transition disabled:opacity-50"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-zen-accent hover:bg-zen-accentHover text-black border border-zen-border transition disabled:opacity-50"
           >
             <Sparkles className={`w-3.5 h-3.5 ${isTriaging ? "animate-spin" : ""}`} />
-            <span>{isTriaging ? "Triage en cours..." : "Trier par IA"}</span>
+            <span>{isTriaging ? "Triage..." : "Trier par IA"}</span>
           </button>
         </div>
       </div>

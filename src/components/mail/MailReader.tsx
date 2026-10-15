@@ -9,6 +9,7 @@ import {
   CornerDownLeft,
   SlidersHorizontal,
   Check,
+  Wand2,
 } from "lucide-react";
 
 interface MailReaderProps {
@@ -71,8 +72,8 @@ export const MailReader: React.FC<MailReaderProps> = ({
     <div className="flex-1 h-screen flex flex-col bg-zen-surface overflow-hidden relative">
       {/* Toast d'apprentissage IA */}
       {learnedNotice && (
-        <div className="absolute top-16 right-6 z-40 bg-zen-accent text-white px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-xs font-medium animate-in fade-in slide-in-from-top-2">
-          <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+        <div className="absolute top-16 right-6 z-40 bg-zen-accent text-black px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-2">
+          <Sparkles className="w-4 h-4 text-black animate-pulse" />
           <span>{learnedNotice}</span>
         </div>
       )}
@@ -133,7 +134,7 @@ export const MailReader: React.FC<MailReaderProps> = ({
                       onClick={() => setSelectedPrio(score as PriorityScore)}
                       className={`flex-1 py-1 rounded border text-center font-bold ${
                         selectedPrio === score
-                          ? "bg-zen-accent text-white border-zen-accent"
+                          ? "bg-zen-accent text-black border-zen-accent"
                           : "bg-zen-bg border-zen-border text-zen-muted hover:text-zen-text"
                       }`}
                     >
@@ -165,7 +166,7 @@ export const MailReader: React.FC<MailReaderProps> = ({
                 </button>
                 <button
                   onClick={handleSaveCorrection}
-                  className="flex items-center gap-1 px-3 py-1 rounded bg-zen-accent hover:bg-zen-accentHover text-white font-medium"
+                  className="flex items-center gap-1 px-3 py-1 rounded bg-zen-accent hover:bg-zen-accentHover text-black font-semibold"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>Enregistrer la règle</span>
@@ -259,18 +260,45 @@ export const MailReader: React.FC<MailReaderProps> = ({
             <textarea
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
+              onKeyDown={(e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                  e.preventDefault();
+                  if (replyText.trim() && !isGenerating) {
+                    setLearnedNotice("Email envoyé avec succès !");
+                    setReplyText("");
+                    setTimeout(() => setLearnedNotice(null), 3000);
+                  }
+                }
+              }}
               placeholder="Rédigez votre réponse ou cliquez sur une suggestion ci-dessus..."
               rows={4}
               className="w-full bg-transparent text-sm text-zen-text placeholder-zen-subtle focus:outline-none resize-none"
             />
             <div className="flex items-center justify-between pt-2 border-t border-zen-border/50">
-              <div className="text-xs text-zen-subtle flex items-center gap-1">
-                <CornerDownLeft className="w-3 h-3" />
-                <span>Ctrl+Entrée pour envoyer</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleQuickReplyClick("Rédige une réponse complète, courtoise et professionnelle validant les points évoqués.")}
+                  disabled={isGenerating}
+                  className="flex items-center gap-1 px-2 py-1 rounded bg-zen-bg hover:bg-zen-hover border border-zen-border text-[11px] text-zen-muted hover:text-zen-text transition disabled:opacity-50"
+                  title="Générer un brouillon complet avec l'IA"
+                >
+                  <Wand2 className="w-3 h-3 text-zen-accent" />
+                  <span>Améliorer / Rédiger par IA</span>
+                </button>
+                <div className="text-[11px] text-zen-subtle flex items-center gap-1">
+                  <CornerDownLeft className="w-3 h-3" />
+                  <span>Ctrl+Entrée</span>
+                </div>
               </div>
               <button
                 disabled={!replyText.trim() || isGenerating}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-zen-accent hover:bg-zen-accentHover text-white transition disabled:opacity-50"
+                onClick={() => {
+                  setLearnedNotice("Email envoyé avec succès !");
+                  setReplyText("");
+                  setTimeout(() => setLearnedNotice(null), 3000);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-zen-accent hover:bg-zen-accentHover text-black transition disabled:opacity-50"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Envoyer</span>
