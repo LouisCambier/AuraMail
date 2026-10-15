@@ -123,7 +123,7 @@ No monthly $30 subscription. No remote servers reading your confidential emails.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/AuraMail.git
+git clone https://github.com/LouisCambier/AuraMail.git
 cd AuraMail
 
 # 2. Install frontend dependencies
@@ -170,12 +170,16 @@ Configure your models in **Settings → AI Engine**:
 
 - [x] Initial Architecture & Specification (Tauri v2 + Rust + React 19)
 - [x] Workspace & Zen Navigation Design
-- [ ] IMAP/SMTP Core Sync Engine with OAuth2 PKCE
-- [ ] SQLite FTS5 Database Engine & Schema Migrations
-- [ ] Background AI Triage Pipeline with Structured JSON Output
-- [ ] Command Palette (`Ctrl+K`) & Keyboard-First Shortcuts
-- [ ] TipTap Markdown/WYSIWYG Composer with Quick Reply Chips
-- [ ] Automated GitHub Actions Release for AppImage, DEB, and RPM
+- [x] Pure Black & White Contrast Aesthetic with Live CSS Customization
+- [x] High-Resolution Brand Mark & Multi-Platform RGBA Icon Suites
+- [x] IMAP/SMTP Core Sync Engine with OAuth2 PKCE
+- [x] SQLite FTS5 Database Engine & Schema Migrations
+- [x] Universal BYOK & Local LLM Triage Pipeline (Ollama, Claude, Gemini, OpenAI)
+- [x] Continuous In-Context Few-Shot Learning & Learned Rules Inspector
+- [x] Command Palette (`Ctrl+K`) & Keyboard-First Navigation
+- [x] Linux Desktop AppImage Packaging (112 MiB bundle)
+- [x] Automated GitHub Actions Release for AppImage, DEB, and RPM
+- [ ] TipTap Rich Markdown/WYSIWYG Composer with Quick Reply Chips
 - [ ] Optional Plugin System for Custom Actions (WASM / JS)
 
 ---
