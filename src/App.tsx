@@ -5,6 +5,7 @@ import { MailReader } from "./components/mail/MailReader";
 import { SettingsModal } from "./components/ai/SettingsModal";
 import { CommandPalette } from "./components/layout/CommandPalette";
 import { AccountModal } from "./components/mail/AccountModal";
+import { OnboardingWizard } from "./components/onboarding/OnboardingWizard";
 import { Email, Workspace, AISettings, LearnedRule, EmailCategory, PriorityScore } from "./types";
 
 const INITIAL_WORKSPACES: Workspace[] = [
@@ -125,6 +126,9 @@ export const App: React.FC = () => {
   const [settingsTab, setSettingsTab] = useState<"byok" | "learning" | "theme">("byok");
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
+    return localStorage.getItem("auramail_onboarded") !== "true";
+  });
   const [learnedRules, setLearnedRules] = useState<LearnedRule[]>([
     {
       id: 1,
@@ -318,6 +322,7 @@ export const App: React.FC = () => {
           setIsSettingsOpen(true);
         }}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onOpenOnboarding={() => setIsOnboardingOpen(true)}
       />
 
       {/* 2. Liste des emails avec badges IA et filtres */}
@@ -365,12 +370,24 @@ export const App: React.FC = () => {
         }}
         onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         onOpenAddAccount={() => setIsAccountModalOpen(true)}
+        onOpenOnboarding={() => setIsOnboardingOpen(true)}
       />
 
       {/* 6. Modale de connexion de compte (OAuth2 / IMAP) */}
       <AccountModal
         isOpen={isAccountModalOpen}
         onClose={() => setIsAccountModalOpen(false)}
+      />
+
+      {/* 7. Assistant de bienvenue & Onboarding nouveaux utilisateurs (façon Thunderbird) */}
+      <OnboardingWizard
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onFinishOnboarding={(_account, ai) => {
+          if (ai) {
+            setAiSettings((prev) => ({ ...prev, ...ai }));
+          }
+        }}
       />
     </div>
   );

@@ -10,6 +10,7 @@ import {
   Sparkles,
   Bot,
   Command,
+  Compass,
 } from "lucide-react";
 import { Workspace } from "../../types";
 import { WorkspaceSwitcher } from "../workspace/WorkspaceSwitcher";
@@ -24,6 +25,7 @@ interface ZenSidebarProps {
   onSelectWorkspace: (id: string) => void;
   onOpenSettings: () => void;
   onOpenCommandPalette?: () => void;
+  onOpenOnboarding?: () => void;
 }
 
 export const ZenSidebar: React.FC<ZenSidebarProps> = ({
@@ -36,6 +38,7 @@ export const ZenSidebar: React.FC<ZenSidebarProps> = ({
   onSelectWorkspace,
   onOpenSettings,
   onOpenCommandPalette,
+  onOpenOnboarding,
 }) => {
   const folders = [
     { id: "inbox", label: "Boîte de réception", icon: Inbox, count: 12 },
@@ -164,6 +167,19 @@ export const ZenSidebar: React.FC<ZenSidebarProps> = ({
                 Ctrl+K
               </kbd>
             )}
+          </button>
+        )}
+
+        {onOpenOnboarding && (
+          <button
+            onClick={onOpenOnboarding}
+            title="Guide de démarrage & Bienvenue"
+            className={`flex items-center gap-2.5 w-full p-2 rounded-lg text-sm text-zen-muted hover:text-zen-text hover:bg-zen-hover transition ${
+              isCollapsed ? "justify-center" : ""
+            }`}
+          >
+            <Compass className="w-4 h-4 shrink-0 text-zen-accent" />
+            {!isCollapsed && <span>Guide de bienvenue</span>}
           </button>
         )}
 

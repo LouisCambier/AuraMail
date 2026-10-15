@@ -14,6 +14,7 @@ import {
   Mail,
   Palette,
   CornerDownLeft,
+  Compass,
 } from "lucide-react";
 
 interface CommandPaletteProps {
@@ -29,6 +30,7 @@ interface CommandPaletteProps {
   onOpenSettings: (tab?: "byok" | "learning" | "theme") => void;
   onToggleSidebar: () => void;
   onOpenAddAccount?: () => void;
+  onOpenOnboarding?: () => void;
 }
 
 interface CommandAction {
@@ -53,6 +55,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onOpenSettings,
   onToggleSidebar,
   onOpenAddAccount,
+  onOpenOnboarding,
 }) => {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -117,6 +120,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     },
 
     // 2. Navigation
+    {
+      id: "open-onboarding",
+      title: "Guide de bienvenue & Configuration initiale",
+      subtitle: "Revoir la présentation, les raccourcis et ajouter un compte",
+      category: "Navigation",
+      icon: <Compass className="w-4 h-4 text-zen-accent" />,
+      perform: () => {
+        if (onOpenOnboarding) onOpenOnboarding();
+        onClose();
+      },
+    },
     {
       id: "add-account",
       title: "Connecter un compte email (OAuth2 / IMAP)",
