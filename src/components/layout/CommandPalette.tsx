@@ -12,6 +12,7 @@ import {
   Brain,
   PanelLeft,
   Mail,
+  Palette,
   CornerDownLeft,
 } from "lucide-react";
 
@@ -25,7 +26,7 @@ interface CommandPaletteProps {
   onSelectFolder: (folder: string) => void;
   onSelectEmail: (id: string) => void;
   onTriageAll: () => void;
-  onOpenSettings: (tab?: "byok" | "learning") => void;
+  onOpenSettings: (tab?: "byok" | "learning" | "theme") => void;
   onToggleSidebar: () => void;
   onOpenAddAccount?: () => void;
 }
@@ -100,6 +101,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       icon: <Sliders className="w-4 h-4 text-zen-accent" />,
       perform: () => {
         onOpenSettings("byok");
+        onClose();
+      },
+    },
+    {
+      id: "theme-settings",
+      title: "Personnaliser le thème & CSS",
+      subtitle: "Modifier les styles, variables CSS et contraste Noir & Blanc",
+      category: "Actions IA",
+      icon: <Palette className="w-4 h-4 text-zen-accent" />,
+      perform: () => {
+        onOpenSettings("theme");
         onClose();
       },
     },

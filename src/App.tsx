@@ -122,7 +122,7 @@ export const App: React.FC = () => {
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>("mail-1");
   const [isTriaging, setIsTriaging] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [settingsTab, setSettingsTab] = useState<"byok" | "learning">("byok");
+  const [settingsTab, setSettingsTab] = useState<"byok" | "learning" | "theme">("byok");
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [learnedRules, setLearnedRules] = useState<LearnedRule[]>([

@@ -26,9 +26,11 @@ No monthly $30 subscription. No remote servers reading your confidential emails.
 
 ## 🚀 Features
 
-- 🧘 **Zen Browser-Inspired Interface** :
+- 🧘 **Zen Browser-Inspired Interface & Custom Styling** :
   - **Collapsible Vertical Sidebar** with icon-only compact mode.
   - **Workspaces** (Personal, Work, Open Source) to partition accounts, rules, and smart views.
+  - **Pure Black & White Minimalist Design** : OLED-optimized contrast palette by default.
+  - **Live CSS Customization** : Custom CSS editor directly embedded in the settings modal (`:root` CSS variables and arbitrary rules with instant live preview and `localStorage` persistence).
   - **Split View** to view threads side-by-side or draft while referencing an email.
   - **Command Palette (`Ctrl+K`)** for instant keyboard-driven navigation.
 

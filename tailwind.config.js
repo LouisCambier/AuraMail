@@ -9,20 +9,20 @@ export default {
     extend: {
       colors: {
         zen: {
-          bg: "#0d0f12",
-          surface: "#14171d",
-          elevated: "#1a1e26",
-          border: "#232833",
-          hover: "#2b323f",
-          accent: "#6366f1", // Indigo
-          accentHover: "#4f46e5",
-          text: "#f3f4f6",
-          muted: "#9ca3af",
-          subtle: "#6b7280",
+          bg: "var(--zen-bg, #000000)",
+          surface: "var(--zen-surface, #0a0a0a)",
+          elevated: "var(--zen-elevated, #141414)",
+          border: "var(--zen-border, #262626)",
+          hover: "var(--zen-hover, #1f1f1f)",
+          accent: "var(--zen-accent, #ffffff)",
+          accentHover: "var(--zen-accent-hover, #e5e5e5)",
+          text: "var(--zen-text, #ffffff)",
+          muted: "var(--zen-muted, #a3a3a3)",
+          subtle: "var(--zen-subtle, #737373)",
         },
       },
       borderRadius: {
-        zen: "12px",
+        zen: "var(--zen-radius, 12px)",
       },
     },
   },

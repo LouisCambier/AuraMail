@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AISettings, AIProviderType, LearnedRule } from "../../types";
-import { X, Sparkles, Key, Server, Cpu, Check, Brain, RotateCcw } from "lucide-react";
+import { X, Sparkles, Key, Server, Cpu, Check, Brain, RotateCcw, Palette } from "lucide-react";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -9,8 +9,23 @@ interface SettingsModalProps {
   onSave: (newSettings: AISettings) => void;
   learnedRules?: LearnedRule[];
   onResetLearning?: () => void;
-  initialTab?: "byok" | "learning";
+  initialTab?: "byok" | "learning" | "theme";
 }
+
+const DEFAULT_CSS = `/* AuraMail — Thème Personnalisé */
+:root {
+  --zen-bg: #000000;
+  --zen-surface: #0a0a0a;
+  --zen-elevated: #141414;
+  --zen-border: #262626;
+  --zen-hover: #1f1f1f;
+  --zen-accent: #ffffff;
+  --zen-accent-hover: #e5e5e5;
+  --zen-text: #ffffff;
+  --zen-muted: #a3a3a3;
+  --zen-subtle: #737373;
+  --zen-radius: 12px;
+}`;
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
@@ -21,9 +36,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onResetLearning,
   initialTab = "byok",
 }) => {
-  const [activeTab, setActiveTab] = useState<"byok" | "learning">(initialTab);
+  const [activeTab, setActiveTab] = useState<"byok" | "learning" | "theme">(initialTab);
   const [current, setCurrent] = useState<AISettings>(settings);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [customCss, setCustomCss] = useState(() => {
+    return localStorage.getItem("auramail_custom_css") || DEFAULT_CSS;
+  });
 
   // Mettre à jour l'onglet actif lors de l'ouverture
   React.useEffect(() => {
@@ -43,6 +61,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }, 600);
   };
 
+  const handleApplyCustomCss = (newCss: string) => {
+    setCustomCss(newCss);
+    localStorage.setItem("auramail_custom_css", newCss);
+    let styleTag = document.getElementById("auramail-custom-theme");
+    if (!styleTag) {
+      styleTag = document.createElement("style");
+      styleTag.id = "auramail-custom-theme";
+      document.head.appendChild(styleTag);
+    }
+    styleTag.textContent = newCss;
+  };
+
+  const handleResetCss = () => {
+    handleApplyCustomCss(DEFAULT_CSS);
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="w-full max-w-lg bg-zen-surface border border-zen-border rounded-2xl shadow-2xl overflow-hidden flex flex-col">
@@ -51,7 +85,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-zen-accent" />
             <h2 className="font-semibold text-zen-text text-base">
-              Intelligence Artificielle AuraMail
+              Paramètres AuraMail
             </h2>
           </div>
           <button
@@ -73,7 +107,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }`}
           >
             <Key className="w-3.5 h-3.5" />
-            <span>Fournisseurs & Clés (BYOK)</span>
+            <span>Fournisseurs (BYOK)</span>
           </button>
           <button
             onClick={() => setActiveTab("learning")}
@@ -84,7 +118,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }`}
           >
             <Brain className="w-3.5 h-3.5 text-zen-accent" />
-            <span>Mémoire & Apprentissage ({learnedRules.length})</span>
+            <span>Mémoire ({learnedRules.length})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("theme")}
+            className={`pb-2.5 flex items-center gap-1.5 border-b-2 transition ${
+              activeTab === "theme"
+                ? "border-zen-accent text-zen-text"
+                : "border-transparent text-zen-muted hover:text-zen-text"
+            }`}
+          >
+            <Palette className="w-3.5 h-3.5 text-zen-accent" />
+            <span>Thème & CSS</span>
           </button>
         </div>
 
@@ -117,8 +162,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         }
                         className={`flex items-center gap-2 p-3 rounded-xl border text-left transition ${
                           isSelected
-                            ? "border-zen-accent bg-zen-accent/15 text-zen-text font-medium"
-                            : "border-zen-border bg-zen-elevated text-zen-muted hover:text-zen-text"
+                            ? "border-zen-accent bg-zen-elevated text-zen-text font-medium"
+                            : "border-zen-border bg-zen-surface text-zen-muted hover:text-zen-text"
                         }`}
                       >
                         <Icon className="w-4 h-4 shrink-0 text-zen-accent" />
@@ -228,7 +273,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </div>
             </>
-          ) : (
+          ) : activeTab === "learning" ? (
             /* Onglet Apprentissage & Mémoire */
             <div className="space-y-4">
               <div className="p-3.5 bg-zen-elevated rounded-xl border border-zen-border text-xs leading-relaxed text-zen-muted">
@@ -271,13 +316,92 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             {rule.sampleCount} exemple(s) enregistré(s)
                           </div>
                         </div>
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-semibold">
+                        <span className="px-2 py-0.5 rounded-full bg-zen-elevated border border-zen-border text-zen-text text-[10px] font-semibold">
                           {Math.round(rule.confidence * 100)}% confiance
                         </span>
                       </div>
                     ))}
                   </div>
                 )}
+              </div>
+            </div>
+          ) : (
+            /* Onglet Thème & Personnalisation CSS */
+            <div className="space-y-4">
+              <div className="p-3.5 bg-zen-elevated rounded-xl border border-zen-border text-xs leading-relaxed text-zen-muted">
+                <span className="font-semibold text-zen-text block mb-1">
+                  🎨 Personnalisation Intégrale du CSS
+                </span>
+                AuraMail est conçu avec des variables CSS directes. Modifiez les couleurs, polices ou arrondis ci-dessous en temps réel.
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase text-zen-subtle">
+                  Éditeur de Variables CSS
+                </span>
+                <button
+                  onClick={handleResetCss}
+                  className="flex items-center gap-1 text-[11px] text-zen-muted hover:text-zen-text transition"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Réinitialiser Noir & Blanc</span>
+                </button>
+              </div>
+
+              <div className="border border-zen-border rounded-xl overflow-hidden bg-zen-bg">
+                <textarea
+                  value={customCss}
+                  onChange={(e) => handleApplyCustomCss(e.target.value)}
+                  rows={10}
+                  className="w-full p-3 bg-transparent text-xs text-zen-text font-mono focus:outline-none resize-none leading-relaxed"
+                  placeholder="/* Saisissez vos styles CSS ici */"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <button
+                  onClick={() =>
+                    handleApplyCustomCss(`:root {
+  --zen-bg: #000000;
+  --zen-surface: #0a0a0a;
+  --zen-elevated: #141414;
+  --zen-border: #262626;
+  --zen-hover: #1f1f1f;
+  --zen-accent: #ffffff;
+  --zen-accent-hover: #e5e5e5;
+  --zen-text: #ffffff;
+  --zen-muted: #a3a3a3;
+  --zen-subtle: #737373;
+  --zen-radius: 12px;
+}`)
+                  }
+                  className="p-2.5 rounded-lg border border-zen-border bg-zen-elevated text-left hover:border-zen-accent transition"
+                >
+                  <div className="font-semibold text-zen-text">⚫ Pure Black & White</div>
+                  <div className="text-[10px] text-zen-subtle">Contraste absolu OLED</div>
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleApplyCustomCss(`:root {
+  --zen-bg: #0f1115;
+  --zen-surface: #181b20;
+  --zen-elevated: #21252d;
+  --zen-border: #2e3440;
+  --zen-hover: #3b4252;
+  --zen-accent: #88c0d0;
+  --zen-accent-hover: #81a1c1;
+  --zen-text: #eceff4;
+  --zen-muted: #d8dee9;
+  --zen-subtle: #4c566a;
+  --zen-radius: 12px;
+}`)
+                  }
+                  className="p-2.5 rounded-lg border border-zen-border bg-zen-elevated text-left hover:border-zen-accent transition"
+                >
+                  <div className="font-semibold text-zen-text">❄️ Nord Frost Minimal</div>
+                  <div className="text-[10px] text-zen-subtle">Gris ardoise & cyan</div>
+                </button>
               </div>
             </div>
           )}
@@ -294,7 +418,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === "byok" && (
             <button
               onClick={handleSave}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium bg-zen-accent hover:bg-zen-accentHover text-white transition"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-medium bg-zen-accent hover:bg-zen-accentHover text-black font-semibold transition"
             >
               {savedSuccess ? (
                 <>

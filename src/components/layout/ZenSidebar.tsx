@@ -61,9 +61,7 @@ export const ZenSidebar: React.FC<ZenSidebarProps> = ({
       <div className="flex items-center justify-between px-3 h-14 border-b border-zen-border">
         {!isCollapsed && (
           <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white text-sm shadow-md">
-              A
-            </div>
+            <img src="/logo.svg" alt="AuraMail Logo" className="w-7 h-7 rounded-lg shadow-sm" />
             <span className="font-semibold tracking-tight text-zen-text text-base">
               AuraMail
             </span>

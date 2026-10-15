@@ -4,6 +4,19 @@
 
 :root {
   color-scheme: dark;
+
+  /* Palette Noir & Blanc Minimaliste par défaut */
+  --zen-bg: #000000;
+  --zen-surface: #0a0a0a;
+  --zen-elevated: #141414;
+  --zen-border: #262626;
+  --zen-hover: #1f1f1f;
+  --zen-accent: #ffffff;
+  --zen-accent-hover: #e5e5e5;
+  --zen-text: #ffffff;
+  --zen-muted: #a3a3a3;
+  --zen-subtle: #737373;
+  --zen-radius: 12px;
 }
 
 body {
@@ -11,11 +24,11 @@ body {
   padding: 0;
   user-select: none;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #0d0f12;
-  color: #f3f4f6;
+  background-color: var(--zen-bg);
+  color: var(--zen-text);
 }
 
-/* Custom Scrollbar Zen */
+/* Custom Scrollbar Zen Noir & Blanc */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -26,10 +39,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #232833;
+  background: var(--zen-border);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: var(--zen-hover);
 }

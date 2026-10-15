@@ -10,6 +10,18 @@ declare global {
   }
 }
 
+// Initialiser le CSS personnalisé sauvegardé par l'utilisateur
+const savedCustomCss = localStorage.getItem("auramail_custom_css");
+if (savedCustomCss) {
+  let styleTag = document.getElementById("auramail-custom-theme");
+  if (!styleTag) {
+    styleTag = document.createElement("style");
+    styleTag.id = "auramail-custom-theme";
+    document.head.appendChild(styleTag);
+  }
+  styleTag.textContent = savedCustomCss;
+}
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <App />
