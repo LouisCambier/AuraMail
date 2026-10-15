@@ -6,6 +6,7 @@ dist-ssr/
 
 # Rust & Tauri
 src-tauri/target/
+src-tauri/gen/
 src-tauri/.auramail_data/
 *.db
 *.db-journal
