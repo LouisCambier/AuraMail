@@ -4,6 +4,7 @@ import { MailList } from "./components/mail/MailList";
 import { MailReader } from "./components/mail/MailReader";
 import { SettingsModal } from "./components/ai/SettingsModal";
 import { CommandPalette } from "./components/layout/CommandPalette";
+import { AccountModal } from "./components/mail/AccountModal";
 import { Email, Workspace, AISettings, LearnedRule, EmailCategory, PriorityScore } from "./types";
 
 const INITIAL_WORKSPACES: Workspace[] = [
@@ -123,6 +124,7 @@ export const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<"byok" | "learning">("byok");
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [learnedRules, setLearnedRules] = useState<LearnedRule[]>([
     {
       id: 1,
@@ -362,6 +364,13 @@ export const App: React.FC = () => {
           setIsSettingsOpen(true);
         }}
         onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        onOpenAddAccount={() => setIsAccountModalOpen(true)}
+      />
+
+      {/* 6. Modale de connexion de compte (OAuth2 / IMAP) */}
+      <AccountModal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
       />
     </div>
   );

@@ -27,6 +27,7 @@ interface CommandPaletteProps {
   onTriageAll: () => void;
   onOpenSettings: (tab?: "byok" | "learning") => void;
   onToggleSidebar: () => void;
+  onOpenAddAccount?: () => void;
 }
 
 interface CommandAction {
@@ -50,6 +51,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onTriageAll,
   onOpenSettings,
   onToggleSidebar,
+  onOpenAddAccount,
 }) => {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -103,6 +105,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     },
 
     // 2. Navigation
+    {
+      id: "add-account",
+      title: "Connecter un compte email (OAuth2 / IMAP)",
+      subtitle: "Gmail, Outlook ou serveur IMAP/SMTP personnalisé",
+      category: "Navigation",
+      icon: <Mail className="w-4 h-4 text-zen-accent" />,
+      perform: () => {
+        if (onOpenAddAccount) onOpenAddAccount();
+        onClose();
+      },
+    },
     {
       id: "toggle-sidebar",
       title: "Basculer la barre latérale Zen",

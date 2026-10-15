@@ -126,6 +126,51 @@ pub fn retrieve_api_credential(provider: String) -> Result<String, String> {
     SecretStore::get_secret(&format!("ai_key_{}", provider))
 }
 
+#[tauri::command]
+pub async fn test_imap_connection(config: mail::imap::ImapConfig) -> Result<bool, String> {
+    mail::imap::ImapEngine::test_connection(&config).await
+}
+
+#[tauri::command]
+pub async fn sync_imap_folder(
+    config: mail::imap::ImapConfig,
+    folder: String,
+    limit: u32,
+) -> Result<Vec<mail::imap::FetchedEmail>, String> {
+    mail::imap::ImapEngine::sync_folder(&config, &folder, limit).await
+}
+
+#[tauri::command]
+pub async fn send_smtp_email(
+    config: mail::smtp::SmtpConfig,
+    email: mail::smtp::OutgoingEmail,
+) -> Result<String, String> {
+    mail::smtp::SmtpEngine::send_email(&config, &email).await
+}
+
+#[tauri::command]
+pub fn get_oauth2_auth_url(
+    provider: String,
+    client_id: String,
+    port: u16,
+    verifier: String,
+) -> Result<String, String> {
+    match provider.as_str() {
+        "google" => Ok(auth::oauth2::OAuthManager::build_google_auth(
+            &client_id, port, &verifier,
+        )),
+        "microsoft" => Ok(auth::oauth2::OAuthManager::build_microsoft_auth(
+            &client_id, port, &verifier,
+        )),
+        _ => Err("Fournisseur OAuth2 non supporté".to_string()),
+    }
+}
+
+#[tauri::command]
+pub async fn listen_oauth2_callback(port: u16) -> Result<String, String> {
+    auth::oauth2::OAuthManager::listen_for_code(port).await
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -150,7 +195,12 @@ pub fn run() {
             reset_learning,
             generate_reply_direct,
             store_api_credential,
-            retrieve_api_credential
+            retrieve_api_credential,
+            test_imap_connection,
+            sync_imap_folder,
+            send_smtp_email,
+            get_oauth2_auth_url,
+            listen_oauth2_callback
         ])
         .run(tauri::generate_context!())
         .expect("Erreur lors de l'exécution de l'application AuraMail");

@@ -1,3 +1,5 @@
+pub mod oauth2;
+
 use keyring::Entry;
 
 pub struct SecretStore;
